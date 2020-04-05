@@ -1,0 +1,78 @@
+#!/home/navraj/env/bin/python
+import os
+import sys
+import shutil
+import datetime
+
+
+path = "/home/navraj/hris/DBBackups/"
+len_del = 5 
+
+def create_log(dirs,del_list):
+		with open("backup_log.txt","a") as f:
+				date_now=str(datetime.datetime.now())
+				if type(del_list)==list:
+						file_list=str(del_list).strip('[]')
+						MESSAGE="DELETED FILES"
+				else:
+						file_list=str(del_list)
+						MESSAGE="MESSAGE"
+				f.write("\n["+date_now+"] [DIR NAME: "+dirs+"] ["+MESSAGE+" : "+file_list+"]\n")
+
+
+def sort_dirs(file_dir):
+		date_list=[]
+		FILE_DIR=file_dir
+		list_files=os.listdir(FILE_DIR)
+		length=len(list_files)
+		list_files.sort(key=lambda x: os.stat(os.path.join(file_dir, x)).st_mtime,reverse=True)
+		return list_files
+
+def delete_folder(file_dir):
+		FILE_DIR=file_dir
+		list_files=os.listdir(FILE_DIR)
+		print("Original Order of files")
+		print(list_files)
+		list_files=sort_dirs(file_dir)
+		print("Sorted Order of files")
+		print(list_files)
+		length=len(list_files)
+		if length>len_del:
+				print("Operation Deletion Files Lists")
+				to_be_deleted=list_files[len_del:]
+				print(to_be_deleted)
+				del_files=len(list_files[len_del:])
+				create_log(file_dir,to_be_deleted)
+				try:
+						for i in range(del_files):
+								print("File Deleted->",to_be_deleted[i])
+								shutil.rmtree(path+"/"+to_be_deleted[i])  #DELETES THE FOLDERS OUT OF DATE PLEASE UNCOMMENT THIS TO PROCEED#
+				except OSError as e:
+						print("Error",e.strerror)
+		else:
+				create_log(file_dir,"ALREADY UP TO DATE!")
+				print(FILE_DIR,"is already up to date!")
+
+def get_files():
+		tree=[]
+		tree=os.listdir(path)
+		#tree=[x for x in tree if os.path.isdir(x)] #CHECKING IF THE LIST ITEM IS DIRECTORY OR NOT
+		#The path '/root/' assuming the script is placed within the level of file named databasebackup change it as per required!
+		return tree
+
+#def pre_process():
+#		list_dirs=[] #DECLARING THE LIST FOR DIRECTORIES
+#		list_dirs=get_dirs() #GETTING THE DIRECTORIES FROM FUNCTION get_dirs()
+#		list_dirs=[x for x in list_dirs if os.path.isdir(x)]
+#		return list_dirs
+
+def main():
+		list_files = get_files()
+		for i in range(len(list_dirs)):
+				print("\n======================= OPERATION STARTS ["+list_dirs[i]+"] ============================\n")
+				delete_folder(list_dirs[i]) #DELETING THE FOLDERS VIA FUNCTION delete_folder
+				print("\n============================== OPERATION END ==================================================\n")
+
+main()
+
+
